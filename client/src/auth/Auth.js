@@ -1,6 +1,6 @@
 import auth0 from 'auth0-js'
 import { authConfig } from '../config'
-import { ACCESS_TOKEN, ID_TOKEN, IS_LOGGED_IN } from '../utils/constants'
+import { ACCESS_TOKEN, ID_TOKEN, IS_LOGGED_IN, EXPIRED_AT } from '../utils/constants'
 import { removeItem, setItem } from '../utils/storage'
 
 export default class Auth {
