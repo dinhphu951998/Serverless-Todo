@@ -22,8 +22,7 @@ provider:
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
-    # TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    TODOS_CREATED_BY_INDEX: UserIdIndex
+    TODOS_CREATED_BY_INDEX: CreateByIndex
     ATTACHMENT_S3_BUCKET: phund15-serverless-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -192,13 +191,15 @@ resources:
         AttributeDefinitions:
           - AttributeName: todoId 
             AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
           - AttributeName: userId
             AttributeType: S
         KeySchema:
-          # - AttributeName: createdBy
-          #   KeyType: HASH
           - AttributeName: todoId
             KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
         GlobalSecondaryIndexes:
@@ -206,8 +207,8 @@ resources:
             KeySchema:
             - AttributeName: userId
               KeyType: HASH
-            # - AttributeName: createdAt
-            #   KeyType: RANGE
+            - AttributeName: createdAt
+              KeyType: RANGE
             Projection:
               ProjectionType: ALL
 
