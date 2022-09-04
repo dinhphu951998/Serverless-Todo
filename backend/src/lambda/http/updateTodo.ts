@@ -1,4 +1,4 @@
-import { updateTodos } from '../../businessLayer/todos'
+import { updateTodos } from '../../businessLayer/todosBusiness'
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'

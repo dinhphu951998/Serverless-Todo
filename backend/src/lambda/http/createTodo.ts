@@ -1,4 +1,4 @@
-import { createTodos } from '../../businessLayer/todos'
+import { createTodos } from '../../businessLayer/todosBusiness'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
 import * as middy from 'middy'
@@ -10,6 +10,15 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const newTodo: CreateTodoRequest = JSON.parse(event.body)
     // Implement creating a new TODO item
+
+    if (!newTodo.name.trim()) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: 'Invalid request body'
+        })
+      }
+    }
 
     const userId: string = parseUserId(getToken(event.headers.Authorization))
     const todoItem = await createTodos(newTodo, userId)

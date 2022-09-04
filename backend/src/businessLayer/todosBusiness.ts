@@ -60,7 +60,7 @@ export const deleteTodo = async (todoId: string) => {
   const todoItem = await todoAccess.getTodoById(todoId)
 
   if (todoItem) {
-    await todoAccess.deleteTodo(todoId)
+    await todoAccess.deleteTodo(todoItem)
   } else {
     throw new createError.NotFound('Todo not found')
   }

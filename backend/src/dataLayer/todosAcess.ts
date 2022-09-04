@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk'
 const AWSXRay = require('aws-xray-sdk')
 import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
+import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
@@ -14,7 +15,7 @@ const createdByIndex = process.env.TODOS_CREATED_BY_INDEX
 
 export class TodosAccess {
   constructor(
-    private readonly docClient = new XAWS.DynamoDB.DocumentClient()
+    private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient()
   ) {}
 
   async getTodosByUserId(userId: string): Promise<TodoItem[]> {
@@ -60,7 +61,8 @@ export class TodosAccess {
       .update({
         TableName: todoTable,
         Key: {
-          todoId: item.todoId
+          todoId: item.todoId,
+          createdAt: item.createdAt
         },
         UpdateExpression:
           'set #name = :name, dueDate = :dueDate, done = :done, attachmentUrl = :attachmentUrl',
@@ -85,27 +87,29 @@ export class TodosAccess {
     logger.info('getTodoById running ' + id)
 
     const result = await this.docClient
-      .get({
+      .query({
         TableName: todoTable,
-        Key: {
-          todoId: id
+        KeyConditionExpression: 'todoId = :todoId',
+        ExpressionAttributeValues: {
+          ':todoId': id
         }
       })
       .promise()
 
     logger.info('getTodoById completed ' + JSON.stringify(result))
 
-    return result.Item as TodoItem
+    return result.Items?.[0] as TodoItem
   }
 
-  async deleteTodo(id: string): Promise<boolean> {
-    logger.info('deleteTodo running ' + id)
+  async deleteTodo(item: TodoItem): Promise<boolean> {
+    logger.info('deleteTodo running ' + JSON.stringify(item))
 
     const result = await this.docClient
       .delete({
         TableName: todoTable,
         Key: {
-          todoId: id
+          todoId: item.todoId,
+          createdAt: item.createdAt
         }
       })
       .promise()
