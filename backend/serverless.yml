@@ -18,8 +18,8 @@ provider:
     apiGateway: true
 
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
-    TODOS_CREATED_BY_INDEX: CreateByIndex
+    TODOS_TABLE: Todos-Table-${self:provider.stage}
+    # TODOS_CREATED_BY_INDEX: CreateByIndex
     ATTACHMENT_S3_BUCKET: phund15-serverless-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_0_SECRET_ID: Auth0Secret-Todos-${self:provider.stage}
@@ -64,10 +64,10 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_BY_INDEX}
+      # - Effect: Allow
+      #   Action:
+      #     - dynamodb:Query
+      #   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_BY_INDEX}
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -104,6 +104,7 @@ functions:
         Action:
           - dynamodb:UpdateItem
           - dynamodb:Query
+          - dynamodb:GetItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # Configure this function
@@ -120,7 +121,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
-          - dynamodb:Query
+          - dynamodb:GetItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # Configure this function
@@ -141,7 +142,7 @@ functions:
         Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
       - Effect: Allow
         Action:
-          - dynamodb:Query
+          - dynamodb:GetItem
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
@@ -164,26 +165,26 @@ resources:
         AttributeDefinitions:
           - AttributeName: todoId 
             AttributeType: S
-          - AttributeName: createdAt
-            AttributeType: S
+          # - AttributeName: createdAt
+          #   AttributeType: S
           - AttributeName: userId
             AttributeType: S
         KeySchema:
-          - AttributeName: todoId
+          - AttributeName: userId
             KeyType: HASH
-          - AttributeName: createdAt
+          - AttributeName: todoId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
-        GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_BY_INDEX}
-            KeySchema:
-            - AttributeName: userId
-              KeyType: HASH
-            - AttributeName: createdAt
-              KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
+        # GlobalSecondaryIndexes:
+        #   - IndexName: ${self:provider.environment.TODOS_CREATED_BY_INDEX}
+        #     KeySchema:
+        #     - AttributeName: userId
+        #       KeyType: HASH
+        #     - AttributeName: createdAt
+        #       KeyType: RANGE
+        #     Projection:
+        #       ProjectionType: ALL
 
     AttachmentsBucket:
       Type: AWS::S3::Bucket

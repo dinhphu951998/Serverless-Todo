@@ -9,7 +9,7 @@ const XAWS = AWSXRay.captureAWS(AWS)
 const logger = createLogger('TodosAccess')
 
 const todoTable = process.env.TODOS_TABLE
-const createdByIndex = process.env.TODOS_CREATED_BY_INDEX
+// const createdByIndex = process.env.TODOS_CREATED_BY_INDEX
 
 export class TodosAccess {
   constructor(
@@ -22,7 +22,6 @@ export class TodosAccess {
     const result = await this.docClient
       .query({
         TableName: todoTable,
-        IndexName: createdByIndex,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
           ':userId': userId
@@ -60,7 +59,7 @@ export class TodosAccess {
         TableName: todoTable,
         Key: {
           todoId: item.todoId,
-          createdAt: item.createdAt
+          userId: item.userId
         },
         UpdateExpression:
           'set #name = :name, dueDate = :dueDate, done = :done, attachmentUrl = :attachmentUrl',
@@ -81,22 +80,22 @@ export class TodosAccess {
     return item
   }
 
-  async getTodoById(id: string): Promise<TodoItem> {
-    logger.info('getTodoById running ' + id)
+  async getTodoById(todoId: string, userId: string): Promise<TodoItem> {
+    logger.info('getTodoById running ' + todoId)
 
     const result = await this.docClient
-      .query({
+      .get({
         TableName: todoTable,
-        KeyConditionExpression: 'todoId = :todoId',
-        ExpressionAttributeValues: {
-          ':todoId': id
+        Key: {
+          todoId,
+          userId
         }
       })
       .promise()
 
     logger.info('getTodoById completed ' + JSON.stringify(result))
 
-    return result.Items?.[0] as TodoItem
+    return result.Item as TodoItem
   }
 
   async deleteTodo(item: TodoItem): Promise<boolean> {
@@ -107,7 +106,7 @@ export class TodosAccess {
         TableName: todoTable,
         Key: {
           todoId: item.todoId,
-          createdAt: item.createdAt
+          userId: item.userId
         }
       })
       .promise()
