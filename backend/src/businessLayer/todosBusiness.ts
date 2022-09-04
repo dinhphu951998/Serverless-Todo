@@ -39,9 +39,10 @@ export const createTodos = async (
 
 export const updateTodos = async (
   todo: UpdateTodoRequest,
-  todoId: string
+  todoId: string,
+  userId: string
 ): Promise<TodoItem> => {
-  const oldTodo = await todoAccess.getTodoById(todoId)
+  const oldTodo = await todoAccess.getTodoById(todoId, userId)
   if (oldTodo) {
     const todoItem = {
       ...oldTodo,
@@ -56,8 +57,8 @@ export const updateTodos = async (
   }
 }
 
-export const deleteTodo = async (todoId: string) => {
-  const todoItem = await todoAccess.getTodoById(todoId)
+export const deleteTodo = async (todoId: string, userId: string) => {
+  const todoItem = await todoAccess.getTodoById(todoId, userId)
 
   if (todoItem) {
     await todoAccess.deleteTodo(todoItem)
@@ -67,10 +68,11 @@ export const deleteTodo = async (todoId: string) => {
 }
 
 export const createAttachmentPresignedUrl = async (
-  todoId: string
+  todoId: string,
+  userId: string
 ): Promise<string> => {
   logger.info('createAttachmentPresignedUrl running ' + todoId)
-  const todoItem = await todoAccess.getTodoById(todoId)
+  const todoItem = await todoAccess.getTodoById(todoId, userId)
 
   if (todoItem) {
     logger.info(
