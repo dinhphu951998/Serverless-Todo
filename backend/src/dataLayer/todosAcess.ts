@@ -11,8 +11,6 @@ const logger = createLogger('TodosAccess')
 const todoTable = process.env.TODOS_TABLE
 const createdByIndex = process.env.TODOS_CREATED_BY_INDEX
 
-// TODO: Implement the dataLayer logic
-
 export class TodosAccess {
   constructor(
     private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient()

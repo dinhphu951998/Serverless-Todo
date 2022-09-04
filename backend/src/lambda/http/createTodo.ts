@@ -9,7 +9,6 @@ import { getToken, parseUserId } from '../../auth/utils'
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const newTodo: CreateTodoRequest = JSON.parse(event.body)
-    // Implement creating a new TODO item
 
     if (!newTodo.name.trim()) {
       return {

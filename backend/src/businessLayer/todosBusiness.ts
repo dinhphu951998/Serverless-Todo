@@ -7,8 +7,6 @@ import * as uuid from 'uuid'
 import * as createError from 'http-errors'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 
-// TODO: Implement businessLogic
-
 const logger = createLogger('TodosBusinessLogic')
 
 const bucketName = process.env.ATTACHMENT_S3_BUCKET
