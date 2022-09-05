@@ -1,22 +1,21 @@
-import { Link, Route, Router, Switch } from 'react-router-dom'
+import { Link, Route, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 import { EditTodo } from './components/EditTodo'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Todos } from './components/Todos'
 import { useAuth0 } from '@auth0/auth0-react'
+import { useContext } from 'react'
+import { UserContext } from 'context/UserContext'
 
-interface AppProps {
-  history: any
-}
-
-export const App = ({ history }: AppProps) => {
-  const { loginWithRedirect, logout, isAuthenticated } = useAuth0()
+export const App = () => {
+  const { loginWithRedirect, logout } = useAuth0()
+  const userContext = useContext(UserContext)
 
   const logInLogOutButton = () => {
-    if (isAuthenticated) {
+    if (userContext.authenticated) {
       return (
-        <Menu.Item name="logout" onClick={() => logout({ returnTo: "/" })}>
+        <Menu.Item name="logout" onClick={() => logout({ returnTo: window.location.origin })}>
           Log Out
         </Menu.Item>
       )
@@ -45,7 +44,7 @@ export const App = ({ history }: AppProps) => {
   }
 
   const generateCurrentPage = () => {
-    if (!isAuthenticated) {
+    if (!userContext.authenticated) {
       return <LogIn />
     }
 
@@ -54,18 +53,13 @@ export const App = ({ history }: AppProps) => {
         <Route
           path="/"
           exact
-          render={(props) => {
-            return <Todos {...props} />
-          }}
+          component={Todos}
         />
 
         <Route
           path="/todos/:todoId/edit"
           exact
-          render={(props) => {
-            return <></>
-            // return <EditTodo {...props} auth={this.props.auth} />
-          }}
+          render={(props) => (<EditTodo todoId={props.match.params.todoId} />)}
         />
 
         <Route component={NotFound} />
@@ -79,11 +73,9 @@ export const App = ({ history }: AppProps) => {
         <Grid container stackable verticalAlign="middle">
           <Grid.Row>
             <Grid.Column width={16}>
-              <Router history={history}>
-                {generateMenu()}
+              {generateMenu()}
 
-                {generateCurrentPage()}
-              </Router>
+              {generateCurrentPage()}
             </Grid.Column>
           </Grid.Row>
         </Grid>

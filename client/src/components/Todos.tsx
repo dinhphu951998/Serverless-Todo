@@ -1,4 +1,3 @@
-import { History } from "history";
 import React, { useContext, useEffect, useState } from "react";
 import update from "immutability-helper";
 import {
@@ -17,13 +16,12 @@ import { createTodo, deleteTodo, getTodos, patchTodo } from "../api/todos-api";
 import { Todo } from "../types/Todo";
 import { calculateDueDate } from "../utils/dateUtils";
 import { UserContext } from "context/UserContext";
+import { useHistory } from "react-router-dom";
 
-interface TodosProps {
-  history: History;
-}
 
-export const Todos = ({ history }: TodosProps) => {
+export const Todos = () => {
   const userContext = useContext(UserContext);
+  const history = useHistory()
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoName, setNewTodoName] = useState("");

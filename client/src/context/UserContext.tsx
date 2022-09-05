@@ -10,6 +10,8 @@ interface IUserContext {
   user: IUser;
   idToken: string;
   accessToken: string;
+  authenticated: boolean
+  isLoading: boolean
 }
 
 export const UserContext = createContext<IUserContext>({} as IUserContext);
@@ -17,9 +19,9 @@ export const UserContext = createContext<IUserContext>({} as IUserContext);
 export const UserContextProvider = ({
   children,
 }: React.PropsWithChildren<{}>) => {
-  const { user, getIdTokenClaims, getAccessTokenSilently, isAuthenticated } =
+  const { user, getIdTokenClaims, getAccessTokenSilently, isAuthenticated: auth0Authenticated } =
     useAuth0();
-  const [context, setContext] = useState<IUserContext>();
+  const [context, setContext] = useState<IUserContext>({} as IUserContext);
 
   useEffect(() => {
     async function getIdToken() {
@@ -29,7 +31,8 @@ export const UserContextProvider = ({
       setContext((oldContext) => ({
         ...oldContext,
         user: { ...user } as IUser,
-        idToken: idTokenClaims.__raw
+        idToken: idTokenClaims.__raw,
+        authenticated: auth0Authenticated
       }));
     }
 
@@ -39,15 +42,17 @@ export const UserContextProvider = ({
       setContext((oldContext) => ({
         ...oldContext,
         user: { ...user } as IUser,
-        accessToken
+        accessToken,
+        authenticated: auth0Authenticated
       }));
     }
 
-    if (isAuthenticated) {
+    if (auth0Authenticated) {
       getIdToken();
       getAccessToken();
-    }
-  }, [user, isAuthenticated, getIdTokenClaims, getAccessTokenSilently]);
+    } 
+    
+  }, [user, auth0Authenticated, getIdTokenClaims, getAccessTokenSilently]);
 
   return (
     <UserContext.Provider value={context}>{children}</UserContext.Provider>
