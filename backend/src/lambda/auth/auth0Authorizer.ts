@@ -12,26 +12,6 @@ const logger = createLogger('auth')
 const secretId = process.env.AUTH_0_SECRET_ID
 const secretField = process.env.AUTH_0_SECRET_FIELD
 
-// const cert = `-----BEGIN CERTIFICATE-----
-// MIIDDTCCAfWgAwIBAgIJUNromp5dI/56MA0GCSqGSIb3DQEBCwUAMCQxIjAgBgNV
-// BAMTGWRldi1tcDlrZXQ2dy51cy5hdXRoMC5jb20wHhcNMjIwODI1MDIyMzAyWhcN
-// MzYwNTAzMDIyMzAyWjAkMSIwIAYDVQQDExlkZXYtbXA5a2V0NncudXMuYXV0aDAu
-// Y29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0XAtk9kj/PGRVqxo
-// GMgqhvGlvQSAIplpjPbZygbaXkrq8HTdRpFrjVp9XBby/IDhC6+t7I30LX/LtJ7x
-// OIFXeguO4bJoFIaaddPPkP4JOa3yMLbLLHGUhs/olrcnGmQGKXcK0uytqFBT3ow9
-// ksMUR4Nz8VbvNbb0LhGa+JFfnNBUt1tl+3Swh+91g3Stkprcp5GcXfzpX1ZnOb31
-// e/zGKEVaOlgXRBbCH3/27XB4anmNelUCqWSh8tHgje0ILXooXl0hDRNvYdU20d8l
-// a6vyeVDdFyAQ78gqYQd0XrMrFdBbDy8J+h+LBmKy9O/8UfGaGzcKC/baYUgochfP
-// rzleQwIDAQABo0IwQDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQ9ua+tGbLl
-// t4XivOB8EDTR7fwSXDAOBgNVHQ8BAf8EBAMCAoQwDQYJKoZIhvcNAQELBQADggEB
-// AMkoEvm/J+txEiX2xd2YykDzB5Bj2vYTbfmM/+1NlohlJjLfESd4Yrt7PQSzSsos
-// xSIb5qgkjv3Y7eh+wypXsTQ11rSTNU+6GEJBBnWzuEuD1S6GTjS1/eOVn06DXY+y
-// 4LpxS8ZC+mjIshsjijJqjO438Efc31UiNS2td8EXL4oubPdH7XsujxhcFe6UMXwR
-// xSrffzlOb+95c212qbCtmfkQjsTWd2snXTpUbgxiIllwN9f6k5UE45bIsEBl+jnr
-// c0VGSrsWJlniWH8LqJ7FpsGULqa77MKCeOzdZAwcpIhhbaCU5x5T+jtHRjyajzdr
-// +EEOltkCFeAy7Lo+b83Bmlo=
-// -----END CERTIFICATE-----`
-
 export const handler = middy(
   async (
     event: CustomAuthorizerEvent,
@@ -39,9 +19,12 @@ export const handler = middy(
   ): Promise<CustomAuthorizerResult> => {
     logger.info('Authorizing a user', event.authorizationToken)
     try {
+      
+      const decodedCert = new Buffer(context.AUTH0_SECRET[secretField], "base64").toString("ascii")
+
       const jwtToken = await verifyToken(
         event.authorizationToken,
-        context.AUTH0_SECRET[secretField]
+        decodedCert
       )
       logger.info('User was authorized', jwtToken)
 
