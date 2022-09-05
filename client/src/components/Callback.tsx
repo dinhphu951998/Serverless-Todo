@@ -10,7 +10,7 @@ function Callback() {
 
   if (userContext.authenticated) {
     history.push("/")
-    return <></>
+    return
   }
 
   return (

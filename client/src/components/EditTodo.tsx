@@ -1,87 +1,72 @@
-import { Form, Button } from 'semantic-ui-react'
-import { getUploadUrl, uploadFile } from '../api/todos-api'
-import { useContext, useState } from 'react'
+import { getTodoById, getUploadUrl, patchTodo, uploadFile } from '../api/todos-api'
+import { useContext, useEffect, useState } from 'react'
 import { UserContext } from 'context/UserContext'
-
-enum UploadState {
-  NoUpload,
-  FetchingPresignedUrl,
-  UploadingFile,
-}
-
+import { TodoForm } from './TodoForm'
+import { Todo } from 'types/Todo'
+import { ProcessState } from 'types/ProcessState'
+import { useHistory } from 'react-router-dom'
+import { Loading } from './Loading'
 interface EditTodoProps {
   todoId: string
 }
 
-export const EditTodo = ({todoId}: EditTodoProps) => {
+export const EditTodo = ({ todoId }: EditTodoProps) => {
 
-  const [file, setFile] = useState(undefined)
-  const [uploadState, setUploadState] = useState(UploadState.NoUpload)
+  const [processState, setProcessState] = useState(ProcessState.NoUpload)
+  const [loading, setLoading] = useState(false)
+  const history = useHistory()
   const userContext = useContext(UserContext)
+  const [todoItem, setTodoItem] = useState({} as Todo)
 
+  useEffect(() => {
+    async function loadTodo() {
+      const todo = await getTodoById(userContext.idToken, todoId)
+      console.log("GetTodoById", JSON.stringify(todo))
+      setTodoItem(todo)
+    }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files) return
+    setLoading(true)
+    loadTodo()
+    setLoading(false)
+  }, [userContext, todoId])
 
-    setFile(files[0])
-  }
-
-  const handleSubmit = async (event: React.SyntheticEvent) => {
-    event.preventDefault()
+  const handleSubmit = async (todo: Todo, file) => {
 
     try {
-      if (!file) {
-        alert('File should be selected')
-        return
+      setProcessState(ProcessState.SaveMetaData)
+      await patchTodo(userContext.idToken, todo.todoId, {
+        name: todo.name,
+        dueDate: todo.dueDate,
+        done: todo.done,
+      });
+
+    } catch {
+      alert("Todo modification failed");
+    }
+
+    try {
+      if (file) {
+        setProcessState(ProcessState.FetchingPresignedUrl)
+        const uploadUrl = await getUploadUrl(userContext.idToken, todoId)
+
+        setProcessState(ProcessState.UploadingFile)
+        await uploadFile(uploadUrl, file)
       }
-
-      setUploadState(UploadState.FetchingPresignedUrl)
-      const uploadUrl = await getUploadUrl(userContext.idToken, todoId)
-
-      setUploadState(UploadState.UploadingFile)
-      await uploadFile(uploadUrl, file)
-
-      alert('File was uploaded!')
     } catch (e) {
       alert('Could not upload a file: ' + (e as Error).message)
     } finally {
-      setUploadState(UploadState.NoUpload)
+      setProcessState(ProcessState.NoUpload)
     }
+
+    alert('Data is saved!')
+
+    history.push("/")
   }
-
-
-  const renderButton = () => (
-    <>
-      {uploadState === UploadState.FetchingPresignedUrl && <p>Uploading image metadata</p>}
-      {uploadState === UploadState.UploadingFile && <p>Uploading file</p>}
-      <Button
-        loading={uploadState !== UploadState.NoUpload}
-        type="submit"
-      >
-        Upload
-      </Button>
-    </>
-  )
-
 
   return (
     <div>
       <h1>Edit todo</h1>
-
-      <Form onSubmit={handleSubmit}>
-        <Form.Field>
-          <label>File</label>
-          <input
-            type="file"
-            accept="image/*"
-            placeholder="Image to upload"
-            onChange={handleFileChange}
-          />
-        </Form.Field>
-
-        {renderButton()}
-      </Form>
+      {loading ? <Loading /> : <TodoForm todo={todoItem} onSubmit={handleSubmit} processState={processState} />}
     </div>
   )
 

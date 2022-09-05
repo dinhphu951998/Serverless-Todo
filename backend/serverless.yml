@@ -146,6 +146,20 @@ functions:
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
+  GetTodoById:
+    handler: src/lambda/http/getTodoById.handler
+    events:
+      - http:
+          method: get
+          path: todos/{todoId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+
 resources:
   Resources:
     GatewayResponseDefault4XX:
@@ -165,8 +179,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: todoId 
             AttributeType: S
-          # - AttributeName: createdAt
-          #   AttributeType: S
           - AttributeName: userId
             AttributeType: S
         KeySchema:
@@ -176,15 +188,7 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
-        # GlobalSecondaryIndexes:
-        #   - IndexName: ${self:provider.environment.TODOS_CREATED_BY_INDEX}
-        #     KeySchema:
-        #     - AttributeName: userId
-        #       KeyType: HASH
-        #     - AttributeName: createdAt
-        #       KeyType: RANGE
-        #     Projection:
-        #       ProjectionType: ALL
+
 
     AttachmentsBucket:
       Type: AWS::S3::Bucket

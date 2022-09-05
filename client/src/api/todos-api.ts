@@ -43,6 +43,19 @@ export async function patchTodo(
   })
 }
 
+export async function getTodoById(
+  idToken: string,
+  todoId: string
+): Promise<Todo> {
+  const response = await Axios.get(`${apiEndpoint}/todos/${todoId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+  return response.data.item
+}
+
 export async function deleteTodo(
   idToken: string,
   todoId: string

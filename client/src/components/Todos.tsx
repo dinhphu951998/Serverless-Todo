@@ -30,7 +30,7 @@ export const Todos = () => {
   useEffect(() => {
     async function loadTodoAsync() {
       try {
-        if (userContext?.idToken) {
+        if (userContext.idToken) {
           setLoadingTodos(true);
           const todos = await getTodos(userContext.idToken);
           setTodos(todos);
@@ -42,7 +42,7 @@ export const Todos = () => {
     }
 
     loadTodoAsync();
-  }, [userContext?.idToken]);
+  }, [userContext.idToken]);
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTodoName(event.target.value);

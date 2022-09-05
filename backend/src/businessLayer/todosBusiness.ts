@@ -92,3 +92,7 @@ export const createAttachmentPresignedUrl = async (
     throw new createError.NotFound("Todo not found")
   }
 }
+
+export const getTodoById = async (todoId: string, userId: string) =>{
+  return await todoAccess.getTodoById(todoId, userId)
+}
