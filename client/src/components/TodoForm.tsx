@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button, Checkbox, Form } from "semantic-ui-react"
 import { ProcessState } from "types/ProcessState"
 import { Todo } from "types/Todo"
@@ -23,11 +23,16 @@ interface IProps {
 // }
 
 export const TodoForm = ({ todo, processState, onSubmit }: IProps) => {
-
-    const [name, setName] = useState(todo.name)
-    const [dueDate, setDueDate] = useState(todo.dueDate)
-    const [done, setDone] = useState(todo.done)
+    const [name, setName] = useState("")
+    const [dueDate, setDueDate] = useState("")
+    const [done, setDone] = useState(false)
     const [file, setFile] = useState(undefined)
+
+    useEffect(() =>{
+        setName(todo.name)
+        setDueDate(todo.dueDate)
+        setDone(todo.done)
+    }, [todo])
 
     const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault()

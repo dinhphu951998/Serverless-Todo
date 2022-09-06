@@ -1,10 +1,11 @@
+import { User } from './../../models/User';
 import { createTodos } from '../../businessLayer/todosBusiness'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
-import { getToken, parseUserId } from '../../auth/utils'
+import { getToken, parseUser } from '../../auth/utils'
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -19,8 +20,8 @@ export const handler = middy(
       }
     }
 
-    const userId: string = parseUserId(getToken(event.headers.Authorization))
-    const todoItem = await createTodos(newTodo, userId)
+    const user: User = parseUser(getToken(event.headers.Authorization))
+    const todoItem = await createTodos(newTodo, user)
 
     return {
       statusCode: 200,

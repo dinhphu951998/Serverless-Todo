@@ -18,12 +18,16 @@ provider:
     apiGateway: true
 
   environment:
+    REGION: ${self:provider.region}
     TODOS_TABLE: Todos-Table-${self:provider.stage}
-    # TODOS_CREATED_BY_INDEX: CreateByIndex
+    TODOS_CREATED_AT_INDEX: DueDateIndex-${self:provider.stage}
     ATTACHMENT_S3_BUCKET: phund15-serverless-todo-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_0_SECRET_ID: Auth0Secret-Todos-${self:provider.stage}
     AUTH_0_SECRET_FIELD: secretKey
+    TODO_EMAIL: dinhphu951998@gmail.com
+    SES_AWS_ACCESS_KEY_ID:
+    SES_AWS_SECRET_ACCESS_KEY:
 
   logs:
     # Enable API Gateway logs
@@ -64,10 +68,6 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-      # - Effect: Allow
-      #   Action:
-      #     - dynamodb:Query
-      #   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_BY_INDEX}
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -160,6 +160,28 @@ functions:
           - dynamodb:GetItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
+  ProcessDueTodo:
+    handler: src/lambda/eventbridge/processDueTodo.handler
+    events:
+      - eventBridge:
+          schedule: rate(10 minutes)
+          # input:
+          #   name: ProcessDueTodo
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+      - Effect: Allow
+        Action:
+          - ses:SendEmail
+        Resource: arn:aws:ses:${self:provider.region}:*:identity/*
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+
+
 resources:
   Resources:
     GatewayResponseDefault4XX:
@@ -181,6 +203,10 @@ resources:
             AttributeType: S
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: dueDate
+            AttributeType: S
+          - AttributeName: state
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -188,6 +214,15 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+            KeySchema:
+              - AttributeName: state
+                KeyType: HASH
+              - AttributeName: dueDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
 
     AttachmentsBucket:

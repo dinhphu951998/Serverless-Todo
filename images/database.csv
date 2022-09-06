@@ -1,0 +1,4 @@
+"userId","todoId","attachmentUrl","createdAt","done","dueDate","email","name","notified","state"
+"google-oauth2|111793629935263376828","323f28b5-355a-4b98-93f9-67626c1a0c23","null","2022-09-06T11:23:42.939Z","false","2022-09-01","dinhphu951998@gmail.com","Do homework!","true","In-progress"
+"google-oauth2|111793629935263376828","63ea17db-41cf-4b11-95ec-956116025aab","https://phund15-serverless-todo-images-dev.s3.amazonaws.com/63ea17db-41cf-4b11-95ec-956116025aab","2022-09-06T10:51:53.363Z","true","2022-09-05","dinhphu951998@gmail.com","Demo 123","false","Completed"
+"google-oauth2|111793629935263376828","e6d14129-c238-4e8d-be91-450e22cd1aef","https://phund15-serverless-todo-images-dev.s3.amazonaws.com/e6d14129-c238-4e8d-be91-450e22cd1aef","2022-09-06T11:14:13.163Z","false","2022-09-04","dinhphu951998@gmail.com","Complete capstone project","true","In-progress"

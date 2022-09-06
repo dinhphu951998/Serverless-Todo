@@ -1,44 +1,53 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Serverless TODO
 
-## Available Scripts
 
-In the project directory, you can run:
+# Functionality of the application
 
-### `npm start`
+This application will allow creating/removing/updating/fetching TODO items. Each TODO item can optionally have an attachment image. Each user only has access to TODO items that he/she has created.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+When todo is over due date, there is an email to notify him/her.
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+## TODO items
 
-### `npm test`
+The application stores TODO items, and each TODO item contains the following fields:
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* `todoId` (string) - a unique id for an item
+* `name` (string) - name of a TODO item (e.g. "Change a light bulb")
+* `dueDate` (string) - date and time by which an item should be completed
+* `done` (boolean) - true if an item was completed, false otherwise
+* `attachmentUrl` (string) (optional) - a URL pointing to an image attached to a TODO item
 
-### `npm run build`
+## Tech stack
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* <a href="https://manage.auth0.com/" target="_blank">Auth0</a>
+* <a href="https://reactjs.org/" target="_blank">ReactJS</a>
+* <a href="https://nodejs.org/en/download/package-manager/" target="_blank">NodeJS</a>
+* <a href="https://www.serverless.com/" target="_blank">Serverless</a>
+* <a href="https://aws.amazon.com/" target="_blank">Amazon Web Service</a>
+   
+## Architecture
+![Overall Architecture](architecture/overall-architecture.png?raw=true)
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+# How to run the application
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Backend
 
-### `npm run eject`
+To deploy an application run the following commands:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```
+cd backend
+npm install
+sls deploy -v
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Frontend
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+To run a client application, first, edit the `client/src/config.ts` file to set correct parameters. And then run the following commands:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+cd client
+npm install
+npm run start
+```
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This should start a development server with the React application that will interact with the serverless TODO application.
